@@ -14,20 +14,21 @@
   </head>
   <body>
     <canvas id="game" width="700px" height="512px"></canvas>
-    <script src="gamelib.js"></script>
+    <script src="js/gamelib.js"></script>
     <script>
-        var resources = {images:[{id:"ring",src:"ring2.png"},
-                                {id:"bk",src:"day.png"},
-                                {id:"bird",src:"bird.png"},
-                                {id:"pipeTop",src:"pipe_top.png"},
-                                {id:"pipeBot",src:"pipe_bot.png"},
-                                {id:"bar",src:"bar.png"},
-                                {id:"title",src:"logo.png"},
-                                {id:"end",src:"flappybird_end.png"},
-                                {id:"coin",src:"Coins.png"}
+       var resources = {images:[{id:"bk",src:"images/day.png"},
+                                {id:"bird",src:"images/bird.png"},
+                                {id:"pipeTop",src:"images/pipe_top.png"},
+                                {id:"pipeBot",src:"images/pipe_bot.png"},
+                                {id:"bar",src:"images/bar.png"},
+                                {id:"title",src:"images/logo.png"},
+                                {id:"end",src:"images/flappybird_end.png"},
+                                {id:"coin",src:"images/Coins.png"}
                               ],
-                        audios:[{id:"dead",src:"hitObstacle_sound.ogg"},
-                                {id:"bling",src:"hitCoin_sound.ogg"}
+                        audios:[{id:"dead",src:"audios/hitObstacle_sound.ogg"},
+                                {id:"hit",src:"audios/sfx_hit.ogg"},
+                                {id:"fly",src:"audios/sfx_wing.ogg"},
+                                {id:"bling",src:"audios/sfx_point.ogg"}
                               ]
                       };
         function gameloop(){
@@ -55,13 +56,16 @@
                 coin.visible = true;
               }
               bar.draw();
-              game.drawText("Score:" + game.score,50,480);
               hero.draw();
+              game.drawText("Score:" + game.score,50,480);
+
               hero.y += 1;
               if(key.pressed == key.space){
                 hero.y -= 2;
+                fly.play();
               }
               if(hero.collidedWith(bar) || hero.collidedWith(pipe.top) || hero.collidedWith(pipe.bot)){
+                hit.play();
                 dead.play();
                 game.state = function(){playAgain();};
               }
@@ -110,6 +114,8 @@
           gameover =  new Sprite(game.images.end,game,80,150);
           coin = new Animation(game.images.coin,game,64,64,12);
           dead = new Sound(game.audios.dead);
+          hit = new Sound(game.audios.hit);
+          fly = new Sound(game.audios.fly);
           bling = new Sound(game.audios.bling);
           game.state = function(){init();};
         }
