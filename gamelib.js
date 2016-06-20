@@ -23,17 +23,18 @@ function Game(canvas){
   this.height = this.canvas.height;
   this.over = false;
   this.pause = false;
+  this.ready = false;
   this.score = 0;
   this.showBoundingBoxes = false;
   this.images = {};
   this.audios = {};
-  this.preload = function(sources,callback){
+  this.preload = function(sources){
     var ct = 0;
     for(var i = 0; i < sources.images.length; i++) {
         this.images[sources.images[i].id] = new Image();
         this.images[sources.images[i].id].onload = function() {
             if(++ct >= sources.images.length + sources.audios.length) {
-                callback();
+                game.ready = true;
             }
         }
         this.images[sources.images[i].id].src = sources.images[i].src;
@@ -42,7 +43,7 @@ function Game(canvas){
         this.audios[sources.audios[i].id] = new Audio();
         this.audios[sources.audios[i].id].oncanplaythrough = function() {
             if(++ct >= sources.images.length + sources.audios.length) {
-                callback();
+                game.ready = true;
             }
         }
         this.audios[sources.audios[i].id].src = sources.audios[i].src;
@@ -131,19 +132,19 @@ function Animation(image,game,w,h,frames,x,y){
   this.visible = true;
   this.perRow = Math.floor(this.image.width / this.width);
   this.draw = function(x,y){
-    if(this.visible){
       var pos = {x:x || this.x,y:y || this.y};
       this.frame = this.frame % this.frames;
       var row = Math.floor(Math.floor(this.frame) / this.perRow);
       var col = Math.floor(this.frame) % this.perRow;
       this.frame += 0.1;
-      this.game.context.drawImage(this.image,col * this.width,row * this.height, this.width, this.height,pos.x - (this.width * this.scale / 2),pos.y - (this.height * this.scale / 2),this.width * this.scale, this.height * this.scale);
+      if(this.visible){
+        this.game.context.drawImage(this.image,col * this.width,row * this.height, this.width, this.height,pos.x - (this.width * this.scale / 2),pos.y - (this.height * this.scale / 2),this.width * this.scale, this.height * this.scale);
+      }
       this.left = pos.x - (this.width * this.scale / 2);
       this.top = pos.y - (this.height * this.scale / 2);
       this.right = pos.x + (this.width * this.scale / 2);
       this.bottom = pos.y + (this.height * this.scale / 2);
       if(this.game.showBoundingBoxes) drawBoundingBox(this);
-    }
   }
   this.moveTo = function(x,y){
     this.x = x;

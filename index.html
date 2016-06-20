@@ -34,8 +34,28 @@
             if(key.pressed == key.enter){
               game.pause = !game.pause;
             }
-            if(!game.pause) game.state();
-            setTimeout(function(){gameloop()},1);
+            if(!game.pause && game.ready){
+              switch (game.state) {
+                case "create":
+                  create();
+                  break;
+                case "init":
+                  init();
+                  break;
+                case "splash":
+                  splash();
+                  break;
+                case "main":
+                  main();
+                  break;
+                case "playAgain":
+                  playAgain();
+                  break;
+                default:
+
+              }
+            }
+            setTimeout(function(){gameloop()},10);
         }
         function main(){
               game.scrollBackground(-1,0);
@@ -62,7 +82,7 @@
 
               if(hero.collidedWith(bar) || hero.collidedWith(pipe.top) || hero.collidedWith(pipe.bot)){
                 dead.play();
-                game.state = function(){playAgain()};
+                game.state = "playAgain";
               }
               if(hero.collidedWith(coin)){
                 bling.play();
@@ -74,8 +94,7 @@
             gameover.draw();
             game.drawText("Play Again? (Y/N)",220,480,"24pt Comic Sans MS shadow-black","white");
             if(key.pressed == key.Y){
-              key.pressed = null;
-              game.state = function(){init()};
+              game.state = "init";
             }else if(key.pressed == key.N){
               window.location = "https://github.com/rcastro2";
             }
@@ -86,7 +105,7 @@
           hero.draw(100,200);
           game.drawText("Press [Space] to Start",200,280,"24pt Comic Sans MS shadow-black","white");
           if(key.pressed == key.space){
-            game.state = function(){main()};
+            game.state = "main";
           }
         }
         function init(){
@@ -96,26 +115,28 @@
           pipe.bot.moveTo(game.width + 100, pipe.top.y + 400);
           coin.draw(pipe.top.x + 30, pipe.top.y + 340);
           coin.visible = true;
-          game.state = function(){splash()};
+          game.state = "splash";
+        }
+        function create(){
+          bk = new Sprite(game.images.bk,game);
+          game.setBackground(bk);
+          bar = new Animation(game.images.bar,game,700,110,3,350,470);
+          hero = new Animation(game.images.bird,game,92,64,3);
+          hero.scale = 0.75;
+          pipe = {top: new Sprite(game.images.pipeTop,game), bot: new Sprite(game.images.pipeBot,game)};
+          title =  new Sprite(game.images.title,game,210,150);
+          title.scale = 1.5;
+          gameover =  new Sprite(game.images.end,game,80,150);
+          coin = new Animation(game.images.coin,game,64,64,12);
+          dead = new Sound(game.audios.dead);
+          bling = new Sound(game.audios.bling);
+          game.state = "init";
         }
         function preload(){
             game = new Game("game");
-            game.preload(resources,function(){
-                bk = new Sprite(game.images.bk,game);
-                game.setBackground(bk);
-                bar = new Animation(game.images.bar,game,700,110,3,350,470);
-                hero = new Animation(game.images.bird,game,92,64,3);
-                hero.scale = 0.75;
-                pipe = {top: new Sprite(game.images.pipeTop,game), bot: new Sprite(game.images.pipeBot,game)};
-                title =  new Sprite(game.images.title,game,210,150);
-                title.scale = 1.5;
-                gameover =  new Sprite(game.images.end,game,80,150);
-                coin = new Animation(game.images.coin,game,64,64,12);
-                dead = new Sound(game.audios.dead);
-                bling = new Sound(game.audios.bling);
-                game.state = function(){init()};
-                gameloop();
-            });
+            game.preload(resources);
+            game.state = "create";
+            gameloop();
         }
         document.onload = preload();
     </script>
