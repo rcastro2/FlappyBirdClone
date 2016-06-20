@@ -35,25 +35,7 @@
               game.pause = !game.pause;
             }
             if(!game.pause && game.ready){
-              switch (game.state) {
-                case "create":
-                  create();
-                  break;
-                case "init":
-                  init();
-                  break;
-                case "splash":
-                  splash();
-                  break;
-                case "main":
-                  main();
-                  break;
-                case "playAgain":
-                  playAgain();
-                  break;
-                default:
-
-              }
+              game.state();
             }
             setTimeout(function(){gameloop()},10);
         }
@@ -79,10 +61,9 @@
               if(key.pressed == key.space){
                 hero.y -= 2;
               }
-
               if(hero.collidedWith(bar) || hero.collidedWith(pipe.top) || hero.collidedWith(pipe.bot)){
                 dead.play();
-                game.state = "playAgain";
+                game.state = function(){playAgain();};
               }
               if(hero.collidedWith(coin)){
                 bling.play();
@@ -94,7 +75,7 @@
             gameover.draw();
             game.drawText("Play Again? (Y/N)",220,480,"24pt Comic Sans MS shadow-black","white");
             if(key.pressed == key.Y){
-              game.state = "init";
+              game.state = function(){init();};
             }else if(key.pressed == key.N){
               window.location = "https://github.com/rcastro2";
             }
@@ -105,7 +86,7 @@
           hero.draw(100,200);
           game.drawText("Press [Space] to Start",200,280,"24pt Comic Sans MS shadow-black","white");
           if(key.pressed == key.space){
-            game.state = "main";
+            game.state = function(){main();};
           }
         }
         function init(){
@@ -115,7 +96,7 @@
           pipe.bot.moveTo(game.width + 100, pipe.top.y + 400);
           coin.draw(pipe.top.x + 30, pipe.top.y + 340);
           coin.visible = true;
-          game.state = "splash";
+          game.state = function(){splash();};
         }
         function create(){
           bk = new Sprite(game.images.bk,game);
@@ -130,12 +111,12 @@
           coin = new Animation(game.images.coin,game,64,64,12);
           dead = new Sound(game.audios.dead);
           bling = new Sound(game.audios.bling);
-          game.state = "init";
+          game.state = function(){init();};
         }
         function preload(){
             game = new Game("game");
             game.preload(resources);
-            game.state = "create";
+            game.state = function(){create();};
             gameloop();
         }
         document.onload = preload();
